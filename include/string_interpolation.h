@@ -20,9 +20,10 @@ namespace istr {
     concept CharTypes = std::is_same<Type, char>::value || std::is_same<Type, char8_t>::value ||
                         std::is_same<Type, char16_t>::value || std::is_same<Type, char32_t>::value ||
                         std::is_same<Type,wchar_t>::value;
-#endif
+#elif
     template<typename Type>
     concept CharTypes = std::is_same<Type, char>::value;
+#endif
 
     enum class Modes {
         WITH_REPLACEMENT_VALIDATION,
@@ -136,7 +137,7 @@ namespace istr {
 
         this->substitution = this->pattern;
 
-        for (const auto& [replaceable, replacement]: this->patternArguments) {
+        for (const auto& [replaceable, replacement]: this->getPatternArguments()) {
             int start_position = 0;
             while ((start_position = this->substitution.find(replaceable, start_position)) !=
                     std::basic_string< T, std::char_traits<T>, std::allocator<T>> ::npos) {
@@ -149,11 +150,11 @@ namespace istr {
 
     template<CharTypes T>
     std::basic_string<T> BasicStringInterpolation<T>::validateReplaceable(const std::basic_string<T>& replaceable) const noexcept{
-        if (replaceable.starts_with(getOpenDelimiter())&&replaceable.ends_with(getCloseDelimiter())) {
+        if (replaceable.starts_with(this->getOpenDelimiter()) && replaceable.ends_with(this->getCloseDelimiter())) {
             return replaceable;
         }
 
-        return this->openDelimiter + replaceable + this->closeDelimiter;
+        return this->getOpenDelimiter() + replaceable + this->getCloseDelimiter();
     }
 
     template<CharTypes T>
@@ -228,8 +229,8 @@ namespace istr {
     BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern,
                                                           const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments,
                                                           const std::basic_string<T>& openDelimiter,
-                                                          const std::basic_string<T>& closeDelimiter) noexcept : openDelimiter(
-            openDelimiter), closeDelimiter(closeDelimiter){
+                                                          const std::basic_string<T>& closeDelimiter) noexcept :
+                                                          openDelimiter(openDelimiter), closeDelimiter(closeDelimiter){
         this->setPattern(pattern);
         this->putPatternArguments(patternArguments);
         this->setMode(Modes::WITH_REPLACEMENT_VALIDATION);
@@ -248,8 +249,7 @@ namespace istr {
                                                          const std::basic_string<T>& replacement) const noexcept{
 
         if (this->pattern.contains(this->validateReplaceable(replaceable))) {
-            this->patternArguments.emplace(this->validateReplaceable(replaceable),
-                                           replacement);
+            this->patternArguments.emplace(this->validateReplaceable(replaceable), replacement);
         }
     }
 
@@ -270,23 +270,23 @@ namespace istr {
 
 
         try {
-            if (this->pattern.empty()) {
+            if (this->getPattern().empty()) {
                 stringStream << "exception message : "
                 << "it is impossible to build a string template, there is no template"
                 << "\n";
                 throw std::runtime_error(stringStream.str());
             }
-            if (this->patternArguments.empty()) {
+            if (this->getPatternArguments().empty()) {
                 stringStream << "exception message : "
                 << "has no arguments to replace in pattern , cannot do substitution string"
                 << "\n";
                 throw std::runtime_error(stringStream.str());
             }
-            for (const auto& [key, value]: this->patternArguments) {
-                if (!this->pattern.contains(key)) {
+            for (const auto& [key, value]: this->getPatternArguments()) {
+                if (!this->getPattern().contains(key)) {
                     stringStream << "exception message : "
                     << "the string template's pattern \" " +
-                    static_cast<std::basic_string<T>>(pattern) +
+                    static_cast<std::basic_string<T>>(this->getPattern()) +
                     " \" does not contain a argument " +
                     static_cast<std::basic_string<T>>(key) + "."
                     << "\n";
@@ -303,8 +303,8 @@ namespace istr {
     template<CharTypes T>
     BasicStringInterpolation<T>&
     BasicStringInterpolation<T>::operator+=(const BasicStringInterpolation<T>& templateBasicString) noexcept{
-        this->pattern += templateBasicString.pattern;
-        this->putPatternArguments(templateBasicString.patternArguments);
+        this->pattern += templateBasicString.getPattern();
+        this->putPatternArguments(templateBasicString.getPatternArguments());
         return *this;
     }
 
