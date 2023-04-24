@@ -20,7 +20,7 @@ namespace istr {
     concept CharTypes = std::is_same<Type, char>::value || std::is_same<Type, char8_t>::value ||
                         std::is_same<Type, char16_t>::value || std::is_same<Type, char32_t>::value ||
                         std::is_same<Type,wchar_t>::value;
-#elif
+#else
     template<typename Type>
     concept CharTypes = std::is_same<Type, char>::value;
 #endif
