@@ -131,12 +131,10 @@ namespace istr {
 
     template<CharTypes T>
     void BasicStringInterpolation<T>::prepareSubstitution() const noexcept{
-        if (this->mode == Modes::WITH_REPLACEMENT_VALIDATION) {
-            tryPrepareSubstitution();
+        if (this->getMode() == Modes::WITH_REPLACEMENT_VALIDATION) {
+            this->tryPrepareSubstitution();
         }
-
-        this->substitution = this->pattern;
-
+        this->substitution = this->getPattern();
         for (const auto& [replaceable, replacement]: this->getPatternArguments()) {
             int start_position = 0;
             while ((start_position = this->substitution.find(replaceable, start_position)) !=
@@ -153,7 +151,6 @@ namespace istr {
         if (replaceable.starts_with(this->getOpenDelimiter()) && replaceable.ends_with(this->getCloseDelimiter())) {
             return replaceable;
         }
-
         return this->getOpenDelimiter() + replaceable + this->getCloseDelimiter();
     }
 
@@ -247,7 +244,6 @@ namespace istr {
     template<CharTypes T>
     void BasicStringInterpolation<T>::putPatternArgument(const std::basic_string<T>& replaceable,
                                                          const std::basic_string<T>& replacement) const noexcept{
-
         if (this->pattern.contains(this->validateReplaceable(replaceable))) {
             this->patternArguments.emplace(this->validateReplaceable(replaceable), replacement);
         }
@@ -259,16 +255,14 @@ namespace istr {
         this->setOpenAndCloseDelimiters(defaultOpenDelimiter, defaultCloseDelimiter);
         this->setMode(Modes::WITH_REPLACEMENT_VALIDATION);
     }
+
     template<CharTypes T>
     [[maybe_unused]] void BasicStringInterpolation<T>::tryPrepareSubstitution() const noexcept(false) {
-
         [[maybe_unused]] std::stringstream stringStream;
         stringStream << "\n";
         stringStream << "exception in file : " << __FILE__ << "\n"
         << "inside function : " << __PRETTY_FUNCTION__ << "\n"
         << "at line : " << __LINE__ << "\n";
-
-
         try {
             if (this->getPattern().empty()) {
                 stringStream << "exception message : "
