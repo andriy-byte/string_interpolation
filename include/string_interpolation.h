@@ -25,7 +25,7 @@ namespace istr {
     concept CharTypes = std::is_same<Type, char>::value;
 #endif
 
-    enum class Modes {
+    enum class SubstitutionPreparationModes {
         WITH_REPLACEMENT_VALIDATION,
         WITHOUT_REPLACEMENT_VALIDATION
     };
@@ -52,24 +52,24 @@ namespace istr {
                 const std::basic_string<T>& openDelimiter,
                 const std::basic_string<T>& closeDelimiter) noexcept;
 
-        BasicStringInterpolation(Modes mode) noexcept;
+        BasicStringInterpolation(SubstitutionPreparationModes mode) noexcept;
 
         BasicStringInterpolation(const std::basic_string<T>& pattern,
                                           const std::map<std::basic_string<T>,std::basic_string<T>>& patternArguments,
                                           const std::basic_string<T>& openDelimiter,
-                                          const std::basic_string<T>& closeDelimiter, Modes mode) noexcept;
+                                          const std::basic_string<T>& closeDelimiter, SubstitutionPreparationModes mode) noexcept;
 
         BasicStringInterpolation(
                 const std::basic_string<T>& pattern,
                 const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments,
-                Modes mode) noexcept;
+                SubstitutionPreparationModes mode) noexcept;
 
         BasicStringInterpolation(
                 const std::basic_string<T>& pattern,
                 const std::basic_string<T>& openDelimiter,
-                const std::basic_string<T>& closeDelimiter, Modes mode) noexcept;
+                const std::basic_string<T>& closeDelimiter, SubstitutionPreparationModes mode) noexcept;
 
-        BasicStringInterpolation(const std::basic_string<T>& pattern, Modes mode) noexcept;
+        BasicStringInterpolation(const std::basic_string<T>& pattern, SubstitutionPreparationModes mode) noexcept;
 
         static const std::basic_string<T>& getDefaultOpenDelimiter() noexcept;
 
@@ -102,9 +102,9 @@ namespace istr {
         void setOpenAndCloseDelimiters(const std::basic_string<T>& openDelimiter,
                                        const std::basic_string<T>& closeDelimiter) const noexcept;
 
-        Modes getMode() const noexcept;
+        SubstitutionPreparationModes getSubstitutionPreparationMode() const noexcept;
 
-        void setMode(const Modes mode) const noexcept;
+        void setSubstitutionPreparationMode(const SubstitutionPreparationModes mode) const noexcept;
 
         void prepareSubstitution() const noexcept;
 
@@ -119,7 +119,7 @@ namespace istr {
         mutable std::map<std::basic_string<T>, std::basic_string<T>> patternArguments;
         static std::basic_string<T> defaultOpenDelimiter, defaultCloseDelimiter;
         mutable std::basic_string<T> openDelimiter, closeDelimiter;
-        mutable Modes mode;
+        mutable SubstitutionPreparationModes substitutionPreparationMode;
     };
 
     template<CharTypes T>
@@ -130,8 +130,8 @@ namespace istr {
             static_cast<std::basic_string<T>>("}}"));
 
     template<CharTypes T>
-    void BasicStringInterpolation<T>::prepareSubstitution() const noexcept{
-        if (this->getMode() == Modes::WITH_REPLACEMENT_VALIDATION) {
+    void BasicStringInterpolation<T>::prepareSubstitution() const noexcept {
+        if (this->getSubstitutionPreparationMode() == SubstitutionPreparationModes::WITH_REPLACEMENT_VALIDATION) {
             this->tryPrepareSubstitution();
         }
         this->substitution = this->getPattern();
@@ -147,7 +147,7 @@ namespace istr {
     }
 
     template<CharTypes T>
-    std::basic_string<T> BasicStringInterpolation<T>::validateReplaceable(const std::basic_string<T>& replaceable) const noexcept{
+    std::basic_string<T> BasicStringInterpolation<T>::validateReplaceable(const std::basic_string<T>& replaceable) const noexcept {
         if (replaceable.starts_with(this->getOpenDelimiter()) && replaceable.ends_with(this->getCloseDelimiter())) {
             return replaceable;
         }
@@ -165,34 +165,34 @@ namespace istr {
     }
 
     template<CharTypes T>
-    const std::basic_string<T>& BasicStringInterpolation<T>::getOpenDelimiter() const noexcept{
+    const std::basic_string<T>& BasicStringInterpolation<T>::getOpenDelimiter() const noexcept {
         return this->openDelimiter;
     }
 
     template<CharTypes T>
-    void BasicStringInterpolation<T>::setOpenDelimiter(const std::basic_string<T>& openDelimiter) const noexcept{
+    void BasicStringInterpolation<T>::setOpenDelimiter(const std::basic_string<T>& openDelimiter) const noexcept {
         this->openDelimiter = openDelimiter;
     }
 
     template<CharTypes T>
-    const std::basic_string<T>& BasicStringInterpolation<T>::getCloseDelimiter() const noexcept{
+    const std::basic_string<T>& BasicStringInterpolation<T>::getCloseDelimiter() const noexcept {
         return this->closeDelimiter;
     }
 
     template<CharTypes T>
     void BasicStringInterpolation<T>::setCloseDelimiter(
-            const std::basic_string<T>& closeDelimiter) const noexcept{
+            const std::basic_string<T>& closeDelimiter) const noexcept {
         this->closeDelimiter = closeDelimiter;
     }
 
     template<CharTypes T>
-    const std::basic_string<T>& BasicStringInterpolation<T>::getPattern() const noexcept{
+    const std::basic_string<T>& BasicStringInterpolation<T>::getPattern() const noexcept {
         return this->pattern;
     }
 
     template<CharTypes T>
     void BasicStringInterpolation<T>::setPattern(
-            const std::basic_string<T>& pattern) noexcept{
+            const std::basic_string<T>& pattern) noexcept {
 
         this->alreadySubstituted = false;
         this->pattern = pattern;
@@ -200,13 +200,13 @@ namespace istr {
 
     template<CharTypes T>
     const std::map<std::basic_string<T>, std::basic_string<T>>&
-    BasicStringInterpolation<T>::getPatternArguments() const noexcept{
+    BasicStringInterpolation<T>::getPatternArguments() const noexcept {
         return this->patternArguments;
     }
 
     template<CharTypes T>
     void BasicStringInterpolation<T>::putPatternArguments(
-            const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments) const noexcept{
+            const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments) const noexcept {
         for (const auto& [replaceable, replacement]: patternArguments){
             this->putPatternArgument(replaceable, replacement);
         }
@@ -215,11 +215,11 @@ namespace istr {
     template<CharTypes T>
     BasicStringInterpolation<T>::BasicStringInterpolation(
             const std::basic_string<T>& pattern,
-            const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments) noexcept{
+            const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments) noexcept {
         this->setPattern(pattern);
         this->setOpenAndCloseDelimiters(defaultOpenDelimiter, defaultCloseDelimiter);
         this->putPatternArguments(patternArguments);
-        this->setMode(Modes::WITH_REPLACEMENT_VALIDATION);
+        this->setSubstitutionPreparationMode(SubstitutionPreparationModes::WITH_REPLACEMENT_VALIDATION);
     }
 
     template<CharTypes T>
@@ -230,11 +230,11 @@ namespace istr {
                                                           openDelimiter(openDelimiter), closeDelimiter(closeDelimiter){
         this->setPattern(pattern);
         this->putPatternArguments(patternArguments);
-        this->setMode(Modes::WITH_REPLACEMENT_VALIDATION);
+        this->setSubstitutionPreparationMode(SubstitutionPreparationModes::WITH_REPLACEMENT_VALIDATION);
     }
 
     template<CharTypes T>
-    const std::basic_string<T> BasicStringInterpolation<T>::getSubstituted() const noexcept{
+    const std::basic_string<T> BasicStringInterpolation<T>::getSubstituted() const noexcept {
         if (!this->alreadySubstituted) {
             this->prepareSubstitution();
         }
@@ -243,17 +243,17 @@ namespace istr {
 
     template<CharTypes T>
     void BasicStringInterpolation<T>::putPatternArgument(const std::basic_string<T>& replaceable,
-                                                         const std::basic_string<T>& replacement) const noexcept{
+                                                         const std::basic_string<T>& replacement) const noexcept {
         if (this->pattern.contains(this->validateReplaceable(replaceable))) {
             this->patternArguments.emplace(this->validateReplaceable(replaceable), replacement);
         }
     }
 
     template<CharTypes T>
-    BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern) noexcept{
+    BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern) noexcept {
         this->setPattern(pattern);
         this->setOpenAndCloseDelimiters(defaultOpenDelimiter, defaultCloseDelimiter);
-        this->setMode(Modes::WITH_REPLACEMENT_VALIDATION);
+        this->setSubstitutionPreparationMode(SubstitutionPreparationModes::WITH_REPLACEMENT_VALIDATION);
     }
 
     template<CharTypes T>
@@ -296,7 +296,7 @@ namespace istr {
 
     template<CharTypes T>
     BasicStringInterpolation<T>&
-    BasicStringInterpolation<T>::operator+=(const BasicStringInterpolation<T>& templateBasicString) noexcept{
+    BasicStringInterpolation<T>::operator+=(const BasicStringInterpolation<T>& templateBasicString) noexcept {
         this->pattern += templateBasicString.getPattern();
         this->putPatternArguments(templateBasicString.getPatternArguments());
         return *this;
@@ -304,15 +304,15 @@ namespace istr {
 
     template<CharTypes T>
     void BasicStringInterpolation<T>::setOpenAndCloseDelimiters(const std::basic_string<T>& openDelimiter,
-                                                                const std::basic_string<T>& closeDelimiter) const noexcept{
+                                                                const std::basic_string<T>& closeDelimiter) const noexcept {
         this->setOpenDelimiter(openDelimiter);
         this->setCloseDelimiter(closeDelimiter);
     }
 
     template<CharTypes T>
-    BasicStringInterpolation<T>::BasicStringInterpolation() noexcept{
+    BasicStringInterpolation<T>::BasicStringInterpolation() noexcept {
         this->setOpenAndCloseDelimiters(defaultOpenDelimiter, defaultCloseDelimiter);
-        this->setMode(Modes::WITH_REPLACEMENT_VALIDATION);
+        this->setSubstitutionPreparationMode(SubstitutionPreparationModes::WITH_REPLACEMENT_VALIDATION);
     }
 
     template<CharTypes T>
@@ -321,60 +321,60 @@ namespace istr {
                                                           const std::basic_string<T>& closeDelimiter) noexcept :
                                                           openDelimiter(openDelimiter), closeDelimiter(closeDelimiter) {
         this->setPattern(pattern);
-        this->setMode(Modes::WITH_REPLACEMENT_VALIDATION);
+        this->setSubstitutionPreparationMode(SubstitutionPreparationModes::WITH_REPLACEMENT_VALIDATION);
     }
 
     template<CharTypes T>
-    Modes BasicStringInterpolation<T>::getMode() const noexcept{
-        return this->modes;
+    SubstitutionPreparationModes BasicStringInterpolation<T>::getSubstitutionPreparationMode() const noexcept {
+        return this->substitutionPreparationMode;
     }
 
     template<CharTypes T>
-    void BasicStringInterpolation<T>::setMode(const Modes mode) const noexcept{
-        this->mode = mode;
+    void BasicStringInterpolation<T>::setSubstitutionPreparationMode(const SubstitutionPreparationModes substitutionPreparationMode) const noexcept {
+        this->substitutionPreparationMode = substitutionPreparationMode;
     }
 
     template<CharTypes T>
-    BasicStringInterpolation<T>::BasicStringInterpolation(Modes mode) noexcept{
+    BasicStringInterpolation<T>::BasicStringInterpolation(SubstitutionPreparationModes substitutionPreparationMode) noexcept {
         this->setOpenAndCloseDelimiters(defaultOpenDelimiter, defaultCloseDelimiter);
-        this->setMode(mode);
+        this->setSubstitutionPreparationMode(substitutionPreparationMode);
     }
 
     template<CharTypes T>
     BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern,
                                                           const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments,
                                                           const std::basic_string<T>& openDelimiter,
-                                                          const std::basic_string<T>& closeDelimiter, Modes mode) noexcept :
+                                                          const std::basic_string<T>& closeDelimiter, SubstitutionPreparationModes substitutionPreparationMode) noexcept :
                                                           openDelimiter(openDelimiter), closeDelimiter(closeDelimiter) {
         this->setPattern(pattern);
         this->putPatternArguments(patternArguments);
-        this->setMode(mode);
+        this->setSubstitutionPreparationMode(substitutionPreparationMode);
     }
 
     template<CharTypes T>
     BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern,
                                                           const std::map<std::basic_string<T>, std::basic_string<T>>& patternArguments,
-                                                          Modes mode) noexcept{
+                                                          SubstitutionPreparationModes substitutionPreparationMode) noexcept {
         this->setPattern(pattern);
         this->setOpenAndCloseDelimiters(defaultOpenDelimiter, defaultCloseDelimiter);
         this->putPatternArguments(patternArguments);
-        this->setMode(mode);
+        this->setSubstitutionPreparationMode(substitutionPreparationMode);
     }
 
     template<CharTypes T>
-    BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern, Modes mode) noexcept{
+    BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern, SubstitutionPreparationModes substitutionPreparationMode) noexcept {
         this->setPattern(pattern);
         this->setOpenAndCloseDelimiters(defaultOpenDelimiter, defaultCloseDelimiter);
-        this->setMode(mode);
+        this->setSubstitutionPreparationMode(substitutionPreparationMode);
     }
 
     template<CharTypes T>
     BasicStringInterpolation<T>::BasicStringInterpolation(const std::basic_string<T>& pattern,
                                                           const std::basic_string<T>& openDelimiter,
-                                                          const std::basic_string<T>& closeDelimiter, Modes mode) noexcept :
+                                                          const std::basic_string<T>& closeDelimiter, SubstitutionPreparationModes substitutionPreparationMode) noexcept :
                                                           openDelimiter(openDelimiter), closeDelimiter(closeDelimiter) {
         this->setPattern(pattern);
-        this->setMode(mode);
+        this->setSubstitutionPreparationMode(substitutionPreparationMode);
     }
 
     using StringInterpolation [[maybe_unused]] = BasicStringInterpolation<char>;
