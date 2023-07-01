@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../include/string_interpolation.h"
+#include "../../include/string_interpolation.hpp"
 #include <chrono>
 #include <ctime>
 
@@ -81,7 +81,7 @@ int main(){
     // in this case, the responsibility rests with you, you must follow which pattern you inserted and which arguments you added
 
     istr::StringInterpolation stringInterpolation4 = istr::StringInterpolation("test for optimization {{tests}}",
-                                                                               istr::Modes::WITHOUT_REPLACEMENT_VALIDATION);
+                                                                               istr::SubstitutionPreparationModes::WITHOUT_REPLACEMENT_VALIDATION);
     std::cout << stringInterpolation4.getSubstituted()<<std::endl;
 
     istr::StringInterpolation stringInterpolation5("test for prepare substition : {{test}}");
